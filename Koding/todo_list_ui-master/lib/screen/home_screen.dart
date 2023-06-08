@@ -58,6 +58,47 @@ class _HomeState extends State<HomeScreen> {
             }));
   }
 
+  Future<Note> navigateToEntryForm(BuildContext context, Note contact) async {
+    var result = await Navigator.push(context,
+        MaterialPageRoute(builder: (BuildContext context) {
+      return AddScreen(Note: Note);
+    }));
+    return result;
+  }
+
+  ListView createListView() {
+    return ListView.builder(
+      itemCount: count,
+      itemBuilder: (BuildContext context, int index) {
+        return Card(
+          color: Colors.white,
+          elevation: 2.0,
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.red,
+              child: Icon(Icons.people),
+            ),
+            title: Text(this.noteList[index].title),
+            subtitle: Text(this.noteList[index].description),
+            trailing: GestureDetector(
+              child: Icon(Icons.delete),
+              onTap: () {
+                deleteNote(noteList[index]);
+              },
+            ),
+            onTap: () async {
+              var contact =
+                  await navigateToEntryForm(context, this.noteList[index]);
+              if (Note.title != '' && Note.description != '') {
+                updateListView(Note);
+              }
+            },
+          ),
+        );
+      },
+    );
+  }
+
   void updateListView() {
     final Future<Database> dbFuture = dbHelper.initDb();
     dbFuture.then((database) {
@@ -69,5 +110,11 @@ class _HomeState extends State<HomeScreen> {
         });
       });
     });
+  }
+
+  void deleteNote(Note object) async {
+    int result = await dbHelper.delete(object.id);
+    if (result > 0) ;
+    updateListView();
   }
 }
