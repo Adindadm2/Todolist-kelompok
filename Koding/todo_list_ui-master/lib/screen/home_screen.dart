@@ -1,27 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:todo_list/helpers/dbhelper.dart';
-import 'package:todo_list/models/note.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_list/models/notes_operation.dart';
 import 'package:todo_list/screen/add_screen.dart';
 import 'package:todo_list/screen/notes_card.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeState();
-}
-
-class _HomeState extends State<HomeScreen> {
-  DbHelper dbHelper = DbHelper();
-  int count = 0;
-  List<Note> noteList = [];
-
-  @override
-  void initState() {
-    super.initState();
-    updateListView(); // Loading the diary when the app starts
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,23 +35,40 @@ class _HomeState extends State<HomeScreen> {
           elevation: 0,
           backgroundColor: Colors.transparent,
         ),
-        body: ListView.builder(
-            itemCount: 3,
-            itemBuilder: (context, index) {
-              return NotesCard();
-            }));
+        drawer: Drawer(
+            child: ListView(
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 40.0,
+                    backgroundColor: Colors.white,
+                    child: Icon(
+                      Icons.person,
+                      size: 40.0,
+                      color: Colors.blue,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 16.0,
+                  ),
+                  Text(
+                    'TodoList',
+                    style: TextStyle(
+                      fontSize: 15.0,
+                      color: Colors.white,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          
+          ],
+        )));
   }
-
-  void updateListView() {
-    final Future<Database> dbFuture = dbHelper.initDb();
-    dbFuture.then((database) {
-      Future<List<Note>> contactListFuture = dbHelper.getNoteList();
-      contactListFuture.then((noteList) {
-        setState(() {
-          this.noteList = noteList;
-          this.count = noteList.length;
-        });
-      });
-    });
   }
-}
